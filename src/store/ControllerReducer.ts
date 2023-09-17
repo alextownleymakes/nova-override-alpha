@@ -1,6 +1,6 @@
 import { actions } from './actionTypes';
 
-interface ControllerState {
+export interface ControllerState {
   keysPressed: { [key: string]: boolean };
 }
 

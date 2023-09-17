@@ -2,6 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/rootReducer';
+import { getNewDeltas } from '../store/actionUtils';
 
 const StarfieldContainer = styled.div`
   position: absolute;
@@ -11,7 +12,7 @@ const StarfieldContainer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 100;
+  z-index: 1;
   pointer-events: none;
 `;
 
@@ -28,7 +29,7 @@ const Star = styled.div<{ animationDelay: string }>`
 
   ${(props) =>
     css`
-      animation-delay: ${props.animationDelay}; /* Add animation delay */
+      animation-delay: ${props.animationDelay};
     `}
 `;
 
@@ -40,8 +41,8 @@ const createStars = (numStars: number) => {
   for (let i = 0; i < numStars; i++) {
     const x = randomInRange(0, 100);
     const y = randomInRange(0, 100);
-    const speed = Math.random() < 0.5 ? 0.25 : 0.5; // 25% of stars move at 25% speed, 75% at 50% speed
-    const animationDelay = `${randomInRange(0, 2)}s`; // Random animation delay
+    const speed = Math.random() < 0.5 ? 0.25 : 0.5;
+    const animationDelay = `${randomInRange(0, 2)}s`;
 
     stars.push({ x, y, speed, animationDelay });
   }
@@ -55,51 +56,21 @@ interface StarfieldProps {
 
 const Starfield: FC<StarfieldProps> = ({ numStars }) => {
   const [stars, setStars] = useState(createStars(numStars));
-  const { w, a, s, d } = useSelector(
-    (state: RootState) => state.controller.keysPressed
-  );
-  
-  const thrust: boolean = w;
-  const reverse: boolean = s;
-  const turnLeft: boolean = a;
-  const turnRight: boolean = d;
+  const { w, a, s, d } = useSelector((state: RootState) => state.controller.keysPressed);
+  const { x: shipX, y: shipY, delta } = useSelector((state: RootState) => state.player.ship);
+  const thrust = w;
 
   useEffect(() => {
-    const handlePlayerMove = () => {
-      let dx = 0;
-      let dy = 0;
 
-      if (thrust) {
-        dy = 1; // Move up
-      } else if (reverse) {
-        dy = -1; // Move down
-      }
-
-      if (turnLeft) {
-        dx = 1; // Move left
-      } else if (turnRight) {
-        dx = -1; // Move right
-      }
-
-      // Diagonal movement
-      if (dx !== 0 && dy !== 0) {
-        dx *= 0.5;
-        dy *= 0.5;
-      }
-
-      setStars((prevStars) => {
-        return prevStars.map((star) => {
-          // Update star positions based on speed and player's movement
-          const newX = (star.x + dx * star.speed + 100) % 100; // Wrap around horizontally
-          const newY = (star.y + dy * star.speed + 100) % 100; // Wrap around vertically
-          return { ...star, x: newX, y: newY };
-        });
+    setStars((prevStars) => {
+      return prevStars.map((star) => {
+        // Update star positions based on speed and player's movement
+        const newX = (star.x - delta.x * star.speed + 100) % 100; // Wrap around horizontally
+        const newY = (star.y - delta.y * star.speed + 100) % 100; // Wrap around vertically
+        return { ...star, x: newX, y: newY };
       });
-    };
-
-    // Handle player movement when keys are pressed
-    handlePlayerMove();
-  });
+    });
+  }, [thrust]); // Dependencies include player movement keys and ship position
 
   return (
     <StarfieldContainer id="starfield">

@@ -44,9 +44,6 @@ const MiniMapComponent: FC<MiniMapProps> = ({ starSystems, onMiniMapClick }) => 
         const rect = e.currentTarget.getBoundingClientRect();  
         const x = (e.clientX - rect.left);   
         const y = (e.clientY - rect.top);    
-
-        console.log(x + ' = ' + e.clientX + ' - ' + rect.left);
-        console.log(y + ' = ' + e.clientY + ' - ' + rect.top);  
         onMiniMapClick(x, y);  
     }  
       

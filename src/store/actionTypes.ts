@@ -8,23 +8,27 @@ export const actions = {
         set: 'SET_NAME',
         reset: 'RESET_NAME',
       },
-      x: {
-        set: 'SET_X',
-        reset: 'RESET_X',
-      },
-      y: {
-        set: 'SET_Y',
-        reset: 'RESET_Y',
-      },
-      a: {
-        set: 'SET_A',
-        reset: 'RESET_A',
-      },
-      v: {
-        set: 'SET_V',
-        reset: 'RESET_V',
-      },
       ship: {
+        x: {
+          set: 'SET_SHIP_X',
+          reset: 'RESET_SHIP_X',
+        },
+        y: {
+          set: 'SET_SHIP_Y',
+          reset: 'RESET_SHIP_Y',
+        },
+        a: {
+          set: 'SET_SHIP_A',
+          reset: 'RESET_SHIP_A',
+        },
+        v: {
+          set: 'SET_SHIP_V',
+          reset: 'RESET_SHIP_V',
+        },
+        delta: {
+          set: 'SET_SHIP_DX',
+          reset: 'RESET_SHIP_DX',
+        },
         thrust: {
           set: 'SET_SHIP_THRUST',
           reset: 'RESET_SHIP_THRUST',

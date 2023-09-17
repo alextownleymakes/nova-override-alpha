@@ -1,13 +1,25 @@
+import { get } from 'http';
+import constants from '../common/constants/constants';
 import { actions } from './actionTypes';
+import { getNewDeltas } from './actionUtils';
 
-type PlayerState = {
+export type PlayerState = {
   name: string;
-  x: number;
-  y: number;
-  a: number;
-  v: number;
   ship: {
-    thrust: boolean;
+    x: number;
+    y: number;
+    angle: number;
+    v: number;
+    maxV: number;
+    acceleration: number;
+    maxAcceleration: number;
+    delta: {x: number, y: number}
+    t: {
+      x: number;
+      y: number;
+    };
+    handling: number;
+    forward: boolean;
     reverse: boolean;
     turnLeft: boolean;
     turnRight: boolean;
@@ -20,12 +32,21 @@ type PlayerAction =
 
 const initialState: PlayerState = {
   name: '',
-  x: 0,
-  y: 0,
-  a: 0,
-  v: 0,
   ship: {
-    thrust: false,
+    x: (constants.gameMap.size * constants.gameMap.scale) / 2,
+    y: (constants.gameMap.size * constants.gameMap.scale) / 2,
+    angle: 360,
+    v: 0,
+    maxV: 1000,
+    acceleration: 50,
+    maxAcceleration: 1000,
+    delta: {x: 0, y: 0},
+    t: {
+      x: 0,
+      y: 0,
+    },
+    handling: 8,
+    forward: false,
     reverse: false,
     turnLeft: false,
     turnRight: false,
@@ -39,22 +60,27 @@ const playerReducer = (state: PlayerState = initialState, action: PlayerAction):
       return { ...state, name: action.payload as string };
     case actions.player.name.reset:
       return { ...state, name: '' };
-    case actions.player.x.set:
-      return { ...state, x: action.payload as number };
-    case actions.player.x.reset:
-      return { ...state, x: 0 };
-    case actions.player.y.set:
-      return { ...state, y: action.payload as number };
-    case actions.player.y.reset:
-      return { ...state, y: 0 };
-    case actions.player.a.set:
-      return { ...state, a: action.payload as number };
-    case actions.player.a.reset:
-      return { ...state, a: 0 };
-    case actions.player.v.set:
-      return { ...state, v: action.payload as number };
-    case actions.player.v.reset:
-      return { ...state, v: 0 };
+    case actions.player.ship.x.set:
+      return { ...state, ship: { ...state.ship, x: action.payload as number } };
+    case actions.player.ship.x.reset:
+      return { ...state, ship: { ...state.ship, x: 0 } };
+    case actions.player.ship.y.set:
+      return { ...state, ship: { ...state.ship, y: action.payload as number } };
+    case actions.player.ship.y.reset:
+      return { ...state, ship: { ...state.ship, y: 0 } };
+    case actions.player.ship.a.set:
+      return { ...state, ship: { ...state.ship, angle: action.payload as number } };
+    case actions.player.ship.a.reset:
+      return { ...state, ship: { ...state.ship, angle: 0 } };
+    case actions.player.ship.v.set:
+      return { ...state, ship: { ...state.ship, v: action.payload as number } };
+    case actions.player.ship.v.reset:
+      return { ...state, ship: { ...state.ship, v: 0 } };
+    case actions.player.ship.delta.set:
+        const newState = getNewDeltas(state.ship.angle, state.ship.v, state.ship.maxV, state.ship.maxAcceleration)
+        return { ...state, ship: { ...state.ship, ...newState } };
+    case actions.player.ship.delta.reset:
+        return { ...state, ship: { ...state.ship, delta: { x: 0, y: 0}, v: 0 }};
     // Handle the actions for ship properties
     case actions.controller.KEY_DOWN:
     case actions.controller.KEY_UP:

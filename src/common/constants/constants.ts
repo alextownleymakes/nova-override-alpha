@@ -1,7 +1,7 @@
 const constants = {
     gameMap: {
-        size: 10000,
-        scale: 1,
+        size: 100000,
+        scale: 100,
         minDistance: 100
     },
     miniMap: {
